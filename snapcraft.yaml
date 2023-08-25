@@ -1,0 +1,24 @@
+name: terramaas
+summary: Terramaas is used to create MAAS networks from a csv file.
+description: |
+  Terramaas allows through Terraform to create MAAS networks configuration from a csv file.
+version: '0.1'
+grade: stable
+confinement: classic
+base: core22
+
+apps:
+  terramaas:
+    command: bin/terramaas
+    #plugs: [home, removable-media, network] 
+
+parts:
+  terramaas:
+    source: .
+    plugin: python
+    build-attributes:
+      - enable-patchelf
+    stage-packages:
+      - python3.10-minimal
+    stage-snaps: [terraform]
+    
