@@ -4,7 +4,7 @@ setup(
     name='terramaas',
     version='0.1',
     packages=['src'],
-    author='Selim',
+    author='afrikha',
     description='Automated Terraform deployment for MAAS',
     install_requires=[
         'pyyaml',  # Add any dependencies you need here
