@@ -11,7 +11,9 @@ def main():
     
     
     create_parser = subparsers.add_parser('create', help='Create a network configuration Terraform file from a csv file')
-    create_parser.add_argument('-c','--csv', help='The csv file containing the network configuration', metavar="",required=True)
+    create_parser.add_argument('-n','--network-config', help='The csv file containing the network configuration', metavar="",required=True)
+    create_parser.add_argument('-p','--partition-config', help='The csv file containing the partition configuration', metavar="",required=True)
+    create_parser.add_argument('-b','--node-config', help='The csv file containing the node configuration', metavar="",required=True)
     create_parser.add_argument('--api-key', help='The MAAS API key', metavar="")
     create_parser.add_argument('--api-url', help='The MAAS API url', metavar="")
     create_parser.add_argument('-a','--api-config', help='The YAML configuration file with MAAS API key and url', metavar="")
