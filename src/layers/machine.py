@@ -1,5 +1,6 @@
 from src import dataExtractionFunctions as extract
 
+
 def csv_to_object_list(data):
     obj_list = []
     part = {}
