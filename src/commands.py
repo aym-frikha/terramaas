@@ -4,10 +4,10 @@ import os
 import yaml
 import subprocess
 
-TERRAFORM_PATH = '/usr/bin/terraform'
+TERRAFORM_PATH = "/usr/bin/terraform"
+
 
 def create(args):
-
     # Get absolute paths
     csv_path = {}
     csv_path.update({"network-config": os.path.abspath(args.network_config)})
@@ -23,9 +23,13 @@ def create(args):
 
     # Write the script to a file show error if file already exists of terraform.tfstate exists
     if os.path.isfile(output_path):
-        raise Exception("File already exists, please run destroy first, or use command update")
+        raise Exception(
+            "File already exists, please run destroy first, or use command update"
+        )
     elif os.path.isfile("terraform.tfstate"):
-        raise Exception("Terraform file already exists, please run destroy first, or use command update")
+        raise Exception(
+            "Terraform file already exists, please run destroy first, or use command update"
+        )
     else:
         with open(output_path, "w") as f:
             f.write(terraform_script)
@@ -37,18 +41,22 @@ def create(args):
 
     # Prompt the user to continue or abort
     if args.yes:
-        subprocess.run([TERRAFORM_PATH, "apply", "-auto-approve"], cwd=os.path.dirname(output_path))
+        subprocess.run(
+            [TERRAFORM_PATH, "apply", "-auto-approve"], cwd=os.path.dirname(output_path)
+        )
     else:
         user_input = input("Do you want to apply the changes? (yes/no): ")
         if user_input.lower() == "yes":
-            subprocess.run([TERRAFORM_PATH, "apply", "-auto-approve"], cwd=os.path.dirname(output_path))
+            subprocess.run(
+                [TERRAFORM_PATH, "apply", "-auto-approve"],
+                cwd=os.path.dirname(output_path),
+            )
         else:
             print("Aborted.")
 
 
 # Update the network configuration if terraform exists in current directory
 def update(args):
-
     # Get absolute paths
     csv_path = os.path.abspath(args.csv)
     output_path = os.path.abspath(args.output)
@@ -62,11 +70,17 @@ def update(args):
         subprocess.run([TERRAFORM_PATH, "plan"], cwd=os.path.dirname(args.directory))
         # Prompt the user to continue or abort
         if args.yes:
-            subprocess.run([TERRAFORM_PATH, "apply", "-auto-approve"], cwd=os.path.dirname(args.directory))
+            subprocess.run(
+                [TERRAFORM_PATH, "apply", "-auto-approve"],
+                cwd=os.path.dirname(args.directory),
+            )
         else:
             user_input = input("Do you want to apply the changes? (yes/no): ")
             if user_input.lower() == "yes":
-                subprocess.run([TERRAFORM_PATH, "apply", "-auto-approve"], cwd=os.path.dirname(args.directory))
+                subprocess.run(
+                    [TERRAFORM_PATH, "apply", "-auto-approve"],
+                    cwd=os.path.dirname(args.directory),
+                )
             else:
                 print("Aborted.")
     else:
@@ -93,8 +107,8 @@ def api_config(args):
         try:
             with open(os.path.abspath(args.api_config)) as f:
                 config = yaml.load(f, Loader=yaml.SafeLoader)
-                api_key = config['api_key']
-                api_url = config['api_url']
+                api_key = config["api_key"]
+                api_url = config["api_url"]
         except:
             raise Exception("Error reading config file")
     else:
