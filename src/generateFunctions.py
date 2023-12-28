@@ -5,8 +5,8 @@ from src.layers import machine as node
 # PROVIDER BLOCK
 def generate_terraform_provider(provider_name, provider_attributes):
     # Define the basic template for the provider block
-    provider_template = """provider "{provider_name}" {{ 
-{attributes}    
+    provider_template = """provider "{provider_name}" {{
+{attributes}
 }}\n\n"""
 
     # Format the attributes
