@@ -86,20 +86,29 @@ def generate_nic(data):
             - nic_name (str): The name of the network interface.
             - mac_address (str): The MAC address of the network interface.
             - resource_name (str): The name of the resource.
+            - vlan_id (number): The vlan id associated.
 
     Returns:
         str: The generated resource template.
     """
+    tags = ""
+    if data["tags"] != "None":
+        tags = '","'.join(("tag1,tag2,tag3".split(",")))
+        tags = f'tags = ["{tags}"]'
     resource_template = """resource "maas_network_interface_physical" "{nic_name}"{{
         machine     = maas_machine.{resource_name}.id
         mac_address = "{mac_address}"
         name        = "{nic_name}"
+        vlan        = "maas_vlan.vlan-{vlan_id}".vid
+        {tags}
 }}\n\n
     """
     return resource_template.format(
         nic_name=data["nic_name"],
         mac_address=data["mac_address"],
         resource_name=data["resource_name"],
+        vlan_id=data["vlan_id"],
+        tags=tags,
     )
 
 
