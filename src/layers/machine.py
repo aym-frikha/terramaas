@@ -87,14 +87,19 @@ def generate_nic(data):
             - mac_address (str): The MAC address of the network interface.
             - resource_name (str): The name of the resource.
             - vlan_id (number): The vlan id associated.
+            - tags (Set of String): A set of tag names to be assigned to the physical network interface
 
     Returns:
         str: The generated resource template.
     """
+    ip_address = ""
+    if data["ip_address"] and data["mode"].toupper() == "STATIC":
+        ip_address = f'ip_address = "{data["ip_address"]}"'
     tags = ""
     if data["tags"] != "None":
         tags = '","'.join(("tag1,tag2,tag3".split(",")))
         tags = f'tags = ["{tags}"]'
+
     resource_template = """resource "maas_network_interface_physical" "{nic_name}"{{
         machine     = maas_machine.{resource_name}.id
         mac_address = "{mac_address}"
@@ -102,6 +107,15 @@ def generate_nic(data):
         vlan        = "maas_vlan.vlan-{vlan_id}".vid
         {tags}
 }}\n\n
+
+resource "maas_network_interface_link" "{nic_name}" {{
+  machine = maas_machine.{resource_name}.id
+  network_interface = maas_network_interface_physical.{nic_name}.id
+  mode = {mode}
+  {ip_address}
+  default_gateway = {default_gateway}
+  subnet = maas_subnet.{subnet}.id
+}}
     """
     return resource_template.format(
         nic_name=data["nic_name"],
@@ -109,6 +123,10 @@ def generate_nic(data):
         resource_name=data["resource_name"],
         vlan_id=data["vlan_id"],
         tags=tags,
+        mode=data["mode"].toupper(),
+        ip_address=ip_address,
+        default_gateway=data["default_gateway"] or False,
+        subnet=data["subnet_name"],
     )
 
 
