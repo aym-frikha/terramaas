@@ -90,11 +90,11 @@ def generate_nic(data):
     Returns:
         str: The generated resource template.
     """
-    resource_template = """resource "maas_network_interface_physical" {nic_name}{{
+    resource_template = """resource "maas_network_interface_physical" "{nic_name}"{{
         machine     = maas_machine.{resource_name}.id
         mac_address = "{mac_address}"
         name        = "{nic_name}"
-    }}\n\n
+}}\n\n
     """
     return resource_template.format(
         nic_name=data["nic_name"],

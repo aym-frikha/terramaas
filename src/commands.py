@@ -26,11 +26,7 @@ def create(args):
     terraform_script = gf.generate_terraform_script(api_key, api_url, csv_path)
 
     # Write the script to a file show error if file already exists of terraform.tfstate exists
-    if os.path.isfile(output_path):
-        raise Exception(
-            "File already exists, please run destroy first, or use command update"
-        )
-    elif os.path.isfile("terraform.tfstate"):
+    if os.path.isfile(output_path) or os.path.isfile("terraform.tfstate"):
         raise Exception(
             "Terraform file already exists, please run destroy first, or use command update"
         )
@@ -38,6 +34,7 @@ def create(args):
         with open(output_path, "w") as f:
             f.write(terraform_script)
 
+    subprocess.run([TERRAFORM_PATH, "fmt"], cwd=os.path.dirname(output_path))
     # Apply terraform script using the command terraform apply
     subprocess.run([TERRAFORM_PATH, "init"], cwd=os.path.dirname(output_path))
     # Run terraform plan to preview changes
@@ -62,7 +59,10 @@ def create(args):
 # Update the network configuration if terraform exists in current directory
 def update(args):
     # Get absolute paths
-    csv_path = os.path.abspath(args.csv)
+    csv_path = {}
+    csv_path.update({"network-config": os.path.abspath(args.network_config)})
+    csv_path.update({"partition-config": os.path.abspath(args.partition_config)})
+    csv_path.update({"node-config": os.path.abspath(args.node_config)})
     output_path = os.path.abspath(args.output)
 
     # Get api key and url from config file or arguments
@@ -70,7 +70,16 @@ def update(args):
 
     # Generate Terraform script
     terraform_script = gf.generate_terraform_script(api_key, api_url, csv_path)
-    if os.path.isfile("terraform.tfstate"):
+
+    if not os.path.isfile(output_path):
+        raise Exception("File doesn't exist exists, please run create command")
+    else:
+        with open(output_path, "w") as f:
+            f.write(terraform_script)
+
+    subprocess.run([TERRAFORM_PATH, "fmt"], cwd=os.path.dirname(output_path))
+
+    if os.path.isfile("terraform.tf"):
         subprocess.run([TERRAFORM_PATH, "plan"], cwd=os.path.dirname(args.directory))
         # Prompt the user to continue or abort
         if args.yes:

@@ -65,12 +65,29 @@ def main():
         metavar="",
         default="./",
     )
+
     update_parser.add_argument(
-        "-c",
-        "--csv",
+        "-n",
+        "--network-config",
         help="The csv file containing the network configuration",
         metavar="",
+        required=True,
     )
+    update_parser.add_argument(
+        "-p",
+        "--partition-config",
+        help="The csv file containing the partition configuration",
+        metavar="",
+        required=True,
+    )
+    update_parser.add_argument(
+        "-b",
+        "--node-config",
+        help="The csv file containing the node configuration",
+        metavar="",
+        required=True,
+    )
+
     update_parser.add_argument("--api-key", help="The MAAS API key", metavar="")
     update_parser.add_argument("--api-url", help="The MAAS API url", metavar="")
     update_parser.add_argument(
