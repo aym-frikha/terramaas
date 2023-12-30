@@ -4,7 +4,11 @@ import os
 import yaml
 import subprocess
 
-TERRAFORM_PATH = "/usr/bin/terraform"
+TERRAFORM_PATH = (
+    subprocess.run(["which", "terraform"], capture_output=True, text=True)
+    .stdout.strip()
+    .split("\n")[0]
+)
 
 
 def create(args):

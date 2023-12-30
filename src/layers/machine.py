@@ -5,9 +5,11 @@ def csv_to_object_list(data):
     obj_list = []
     part = {}
     for header in data[0]:
+        header = header.strip().lower().replace(" ", "_")
         part.update({header: ""})
     for row in data[1:]:
         for header, value in zip(data[0], row):
+            header = header.strip().lower().replace(" ", "_")
             part[header] = value
         obj_list.append(part)
     return obj_list
@@ -19,7 +21,7 @@ def generate_terraform_resource_machine(data):
 
     Args:
         data (dict): A dictionary containing the data for the resource block.
-            - "Resource Name" (str): The name of the resource.
+            - "resource_name" (str): The name of the resource.
             - "power_type" (str): The type of power for the machine.
             - "power_pass" (str): The password for the power.
             - "power_address" (str): The address for the power.
@@ -38,7 +40,7 @@ def generate_terraform_resource_machine(data):
     }}\n\n"""
 
     resource_block = resource_template.format(
-        resource_name=data["Resource Name"],
+        resource_name=data["resource_name"],
         power_type=data["power_type"],
         power_pass=data["power_pass"],
         power_address=data["power_address"],
@@ -71,7 +73,7 @@ def generate_partition(partition):
         fs_type=partition["fs_type"],
         label=partition["label"],
         bootable=partition["bootable"],
-        mount_point=partition["mount_point"],
+        mount_point=partition["resource_name"],
     )
 
 
@@ -83,7 +85,7 @@ def generate_nic(data):
         data (dict): A dictionary containing the following keys:
             - nic_name (str): The name of the network interface.
             - mac_address (str): The MAC address of the network interface.
-            - Resource Name (str): The name of the resource.
+            - resource_name (str): The name of the resource.
 
     Returns:
         str: The generated resource template.
@@ -97,7 +99,7 @@ def generate_nic(data):
     return resource_template.format(
         nic_name=data["nic_name"],
         mac_address=data["mac_address"],
-        resource_name=data["Resource Name"],
+        resource_name=data["resource_name"],
     )
 
 
@@ -126,8 +128,8 @@ def generate_block_device(data, partition_csv):
         partitions += generate_partition(p)
         total_size += int(p["size_gigabytes"])
     return resource_template.format(
-        resource_name=data["Resource Name"],
-        name=data["Resource Name"],
+        resource_name=data["resource_name"],
+        name=data["resource_name"],
         id_path=data["id_path"],
         size=total_size,
         partitions=partitions,
@@ -155,7 +157,7 @@ def generate_terraform_node_script(machines_config, partitions_config):
             [
                 part
                 for part in partitions
-                if part["Resource Name"] in machine["partition_schema"].split(",")
+                if part["resource_name"] in machine["partition_schema"].split(",")
             ],
         )
         terraform_file += generate_nic(machine)
