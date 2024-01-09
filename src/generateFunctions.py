@@ -1,5 +1,6 @@
 from src.layers import network as net
 from src.layers import machine as node
+from src.layers import user
 
 
 # PROVIDER BLOCK
@@ -68,5 +69,10 @@ def generate_terraform_script(api_key, api_url, csv_files):
         csv_files["partition-config"],
         csv_files["nics-config"],
     )
+
+    if "user-config" in csv_files:
+        terraform_script += user.generate_terraform_user_script(
+            csv_files["user-config"],
+        )
 
     return terraform_script

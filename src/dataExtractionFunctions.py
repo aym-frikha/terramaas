@@ -1,4 +1,5 @@
 import csv
+import re
 
 CIDR_COLUMN = "CIDR"
 GATEWAY_COLUMN = "Gateway"
@@ -7,6 +8,21 @@ DYNAMIC_RANGE_COLUMN = "Dynamic Range"
 RESERVED_RANGE_COLUMN = "Reserved Range"
 VLAN_COLUMN = "VLAN"
 FABRIC_COLUMN = "Fabric"
+
+
+def csv_to_object_list(data):
+    headers = [header.lower().strip().replace(" ", "_") for header in data[0]]
+    obj_list = []
+    for row in data[1:]:
+        row = [r.strip() for r in row]
+        row = ",".join(row)
+        comma_outside_quotes = re.compile(r",(?=(?:[^\"']*[\"'][^\"']*[\"'])*[^\"']*$)")
+        row = comma_outside_quotes.split(row)
+        obj = dict(zip(headers, row))
+        for key, value in obj.items():
+            obj[key] = value.replace('"', "")
+        obj_list.append(obj)
+    return obj_list
 
 
 # Function to extract data from a csv file

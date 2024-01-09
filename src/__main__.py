@@ -30,6 +30,13 @@ def main():
         required=True,
     )
     create_parser.add_argument(
+        "-u",
+        "--user-config",
+        help="The csv file containing the user configuration",
+        metavar="",
+        required=False,
+    )
+    create_parser.add_argument(
         "-b",
         "--node-config",
         help="The csv file containing the node configuration",
@@ -100,6 +107,13 @@ def main():
         help="The csv file containing the nics configuration",
         metavar="",
         required=True,
+    )
+    update_parser.add_argument(
+        "-u",
+        "--user-config",
+        help="The csv file containing the user configuration",
+        metavar="",
+        required=False,
     )
 
     update_parser.add_argument("--api-key", help="The MAAS API key", metavar="")

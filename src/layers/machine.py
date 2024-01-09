@@ -1,20 +1,4 @@
 from src import dataExtractionFunctions as extract
-import re
-
-
-def csv_to_object_list(data):
-    headers = [header.lower().strip().replace(" ", "_") for header in data[0]]
-    obj_list = []
-    for row in data[1:]:
-        row = [r.strip() for r in row]
-        row = ",".join(row)
-        comma_outside_quotes = re.compile(r",(?=(?:[^\"']*[\"'][^\"']*[\"'])*[^\"']*$)")
-        row = comma_outside_quotes.split(row)
-        obj = dict(zip(headers, row))
-        for key, value in obj.items():
-            obj[key] = value.replace('"', "")
-        obj_list.append(obj)
-    return obj_list
 
 
 def generate_terraform_resource_machine(data):
@@ -178,9 +162,9 @@ def generate_terraform_node_script(machines_config, partitions_config, nics_conf
     """
     terraform_file = ""
 
-    machines = csv_to_object_list(extract.read_csv_data(machines_config))
-    partitions = csv_to_object_list(extract.read_csv_data(partitions_config))
-    nics = csv_to_object_list(extract.read_csv_data(nics_config))
+    machines = extract.csv_to_object_list(extract.read_csv_data(machines_config))
+    partitions = extract.csv_to_object_list(extract.read_csv_data(partitions_config))
+    nics = extract.csv_to_object_list(extract.read_csv_data(nics_config))
     for machine in machines:
         terraform_file += generate_terraform_resource_machine(machine)
         terraform_file += generate_block_device(
