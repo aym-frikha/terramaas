@@ -3,15 +3,10 @@ from src import dataExtractionFunctions as extract
 
 def csv_to_object_list(data):
     obj_list = []
-    part = {}
-    for header in data[0]:
-        header = header.strip().lower().replace(" ", "_")
-        part.update({header: ""})
     for row in data[1:]:
-        for header, value in zip(data[0], row):
-            header = header.strip().lower().replace(" ", "_")
-            part[header] = value
-        obj_list.append(part)
+        headers = [header.lower().strip().replace(" ", "_") for header in data[0]]
+        row = [r.lower().strip().replace(" ", "_") for r in row]
+        obj_list.append(dict(zip(headers, row)))
     return obj_list
 
 
@@ -77,7 +72,7 @@ def generate_partition(partition):
     )
 
 
-def generate_nic(data):
+def generate_nic(machine_name, data):
     """
     Generates a resource template for a physical network interface.
 
@@ -120,7 +115,7 @@ resource "maas_network_interface_link" "{nic_name}" {{
     return resource_template.format(
         nic_name=data["nic_name"],
         mac_address=data["mac_address"],
-        resource_name=data["resource_name"],
+        resource_name=machine_name,
         vlan_id=data["vlan_id"],
         tags=tags,
         mode=data["mode"].toupper(),
@@ -163,7 +158,7 @@ def generate_block_device(data, partition_csv):
     )
 
 
-def generate_terraform_node_script(machines_config, partitions_config):
+def generate_terraform_node_script(machines_config, partitions_config, nics_config):
     """
     Generates a Terraform script for creating resources based on the provided machines and partitions configurations.
 
@@ -177,6 +172,7 @@ def generate_terraform_node_script(machines_config, partitions_config):
     terraform_file = ""
     machines = csv_to_object_list(extract.read_csv_data(machines_config))
     partitions = csv_to_object_list(extract.read_csv_data(partitions_config))
+    nics = csv_to_object_list(extract.read_csv_data(nics_config))
     for machine in machines:
         terraform_file += generate_terraform_resource_machine(machine)
         terraform_file += generate_block_device(
@@ -187,5 +183,11 @@ def generate_terraform_node_script(machines_config, partitions_config):
                 if part["resource_name"] in machine["partition_schema"].split(",")
             ],
         )
-        terraform_file += generate_nic(machine)
+        print(machine["nic_name"])
+        print(nics)
+        for nic in nics:
+            if nic["resource_name"] in [
+                nic.strip() for nic in machine["nic_name"].split(",")
+            ]:
+                terraform_file += generate_nic(machine["resource_name"], nic)
     return terraform_file

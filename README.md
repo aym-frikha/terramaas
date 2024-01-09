@@ -40,8 +40,8 @@ Terramaas provides a CLI with various commands:
 To create a network configuration Terraform file from a CSV, use the `create` command. You'll need to specify the CSV file containing the network configuration and the MAAS API configuration file (or provide API key and URL). For example:
 
 ```bash
-terramaas create --csv network_config.csv --api-config api_config.yaml  
-``` 
+terramaas create --node-config node_config.csv --partition-config partition_config.csv --network-config network_config.csv --api-config key.yaml
+```
 
 #### Options:
 | Option | Description | Default | Required |
@@ -73,7 +73,7 @@ api_url: <MAAS_API_URL>
 To update a network configuration in MAAS, use the `update` command. You'll need to specify the updated CSV File describing the network configuration, the API configuration file (or provide API key and URL), and the output file name. For example:
 
 ```bash
-terramaas update --csv network_config.csv --api-config api_config.yaml  
+terramaas update --node-config node_config.csv --partition-config partition_config.csv --network-config network_config.csv --api-config key.yaml
 ```
 
 #### Options:
@@ -95,7 +95,7 @@ terramaas update --csv network_config.csv --api-config api_config.yaml
 To destroy a network configuration in MAAS, use the `destroy` command.
 
 ```bash
-terramaas destroy -d <tfstate_directory>  
+terramaas destroy -d <tfstate_directory>
 ```
 
 #### Options:

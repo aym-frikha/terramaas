@@ -64,7 +64,9 @@ def generate_terraform_script(api_key, api_url, csv_files):
         csv_files["network-config"]
     )
     terraform_script += node.generate_terraform_node_script(
-        csv_files["node-config"], csv_files["partition-config"]
+        csv_files["node-config"],
+        csv_files["partition-config"],
+        csv_files["nics-config"],
     )
 
     return terraform_script

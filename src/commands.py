@@ -17,6 +17,7 @@ def create(args):
     csv_path.update({"network-config": os.path.abspath(args.network_config)})
     csv_path.update({"partition-config": os.path.abspath(args.partition_config)})
     csv_path.update({"node-config": os.path.abspath(args.node_config)})
+    csv_path.update({"nics-config": os.path.abspath(args.nics_config)})
     output_path = os.path.abspath(args.output)
 
     # Get api key and url from config file or arguments
@@ -63,6 +64,7 @@ def update(args):
     csv_path.update({"network-config": os.path.abspath(args.network_config)})
     csv_path.update({"partition-config": os.path.abspath(args.partition_config)})
     csv_path.update({"node-config": os.path.abspath(args.node_config)})
+    csv_path.update({"nics-config": os.path.abspath(args.nics_config)})
     output_path = os.path.abspath(args.output)
 
     # Get api key and url from config file or arguments
