@@ -1,12 +1,19 @@
 from src import dataExtractionFunctions as extract
+import re
 
 
 def csv_to_object_list(data):
+    headers = [header.lower().strip().replace(" ", "_") for header in data[0]]
     obj_list = []
     for row in data[1:]:
-        headers = [header.lower().strip().replace(" ", "_") for header in data[0]]
-        row = [r.lower().strip().replace(" ", "_") for r in row]
-        obj_list.append(dict(zip(headers, row)))
+        row = [r.strip() for r in row]
+        row = ",".join(row)
+        comma_outside_quotes = re.compile(r",(?=(?:[^\"']*[\"'][^\"']*[\"'])*[^\"']*$)")
+        row = comma_outside_quotes.split(row)
+        obj = dict(zip(headers, row))
+        for key, value in obj.items():
+            obj[key] = value.replace('"', "")
+        obj_list.append(obj)
     return obj_list
 
 
@@ -95,30 +102,30 @@ def generate_nic(machine_name, data):
         tags = '","'.join(("tag1,tag2,tag3".split(",")))
         tags = f'tags = ["{tags}"]'
 
-    resource_template = """resource "maas_network_interface_physical" "{nic_name}"{{
+    resource_template = """resource "maas_network_interface_physical" "{resource_name}-{nic_name}"{{
         machine     = maas_machine.{resource_name}.id
         mac_address = "{mac_address}"
         name        = "{nic_name}"
-        vlan        = "maas_vlan.vlan-{vlan_id}".vid
+        vlan        = maas_vlan.vlan-{vlan_id}.vid
         {tags}
 }}\n\n
 
-resource "maas_network_interface_link" "{nic_name}" {{
+resource "maas_network_interface_link" "{resource_name}-{nic_name}" {{
   machine = maas_machine.{resource_name}.id
-  network_interface = maas_network_interface_physical.{nic_name}.id
-  mode = {mode}
+  network_interface = maas_network_interface_physical.{resource_name}-{nic_name}.id
+  mode = "{mode}"
   {ip_address}
   default_gateway = {default_gateway}
   subnet = maas_subnet.{subnet}.id
 }}
     """
     return resource_template.format(
-        nic_name=data["nic_name"],
+        nic_name=data["resource_name"],
         mac_address=data["mac_address"],
         resource_name=machine_name,
         vlan_id=data["vlan_id"],
         tags=tags,
-        mode=data["mode"].toupper(),
+        mode=data["mode"].upper(),
         ip_address=ip_address,
         default_gateway=data["default_gateway"] or False,
         subnet=data["subnet_name"],
@@ -170,6 +177,7 @@ def generate_terraform_node_script(machines_config, partitions_config, nics_conf
     :rtype: str
     """
     terraform_file = ""
+
     machines = csv_to_object_list(extract.read_csv_data(machines_config))
     partitions = csv_to_object_list(extract.read_csv_data(partitions_config))
     nics = csv_to_object_list(extract.read_csv_data(nics_config))
@@ -183,8 +191,6 @@ def generate_terraform_node_script(machines_config, partitions_config, nics_conf
                 if part["resource_name"] in machine["partition_schema"].split(",")
             ],
         )
-        print(machine["nic_name"])
-        print(nics)
         for nic in nics:
             if nic["resource_name"] in [
                 nic.strip() for nic in machine["nic_name"].split(",")
