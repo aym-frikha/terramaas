@@ -63,7 +63,7 @@ def generate_partition(partition):
     )
 
 
-def generate_nic(machine_name, data):
+def generate_nic(machine_name, data, mac_address):
     """
     Generates a resource template for a physical network interface.
 
@@ -79,7 +79,7 @@ def generate_nic(machine_name, data):
         str: The generated resource template.
     """
     ip_address = ""
-    if data["ip_address"] and data["mode"].toupper() == "STATIC":
+    if data["ip_address"] and data["mode"].upper() == "STATIC":
         ip_address = f'ip_address = "{data["ip_address"]}"'
     tags = ""
     if data["tags"] != "None":
@@ -105,7 +105,7 @@ resource "maas_network_interface_link" "{resource_name}-{nic_name}" {{
     """
     return resource_template.format(
         nic_name=data["resource_name"],
-        mac_address=data["mac_address"],
+        mac_address=mac_address,
         resource_name=machine_name,
         vlan_id=data["vlan_id"],
         tags=tags,
@@ -127,7 +127,7 @@ def generate_block_device(data, partition_csv):
     :return: The generated resource template as a string.
     :rtype: str
     """
-    resource_template = """resource "maas_block_device" "{resource_name}" {{
+    resource_template = """resource "maas_block_device" "{resource_name}-block-device" {{
   machine = maas_machine.{resource_name}.id
   name = "{name}"
   id_path = "{id_path}"
@@ -142,7 +142,7 @@ def generate_block_device(data, partition_csv):
         total_size += int(p["size_gigabytes"])
     return resource_template.format(
         resource_name=data["resource_name"],
-        name=data["resource_name"],
+        name=data["resource_name"]+data["id_path"],
         id_path=data["id_path"],
         size=total_size,
         partitions=partitions,
@@ -175,9 +175,10 @@ def generate_terraform_node_script(machines_config, partitions_config, nics_conf
                 if part["resource_name"] in machine["partition_schema"].split(",")
             ],
         )
-        for nic in nics:
+        mac_addresses = machine["mac_address"].split(",")
+        for (mac_address,nic) in zip(mac_addresses,nics):
             if nic["resource_name"] in [
                 nic.strip() for nic in machine["nic_name"].split(",")
             ]:
-                terraform_file += generate_nic(machine["resource_name"], nic)
+                terraform_file += generate_nic(machine["resource_name"], nic, mac_address)
     return terraform_file

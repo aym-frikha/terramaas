@@ -84,7 +84,7 @@ def update(args):
 
     subprocess.run([TERRAFORM_PATH, "fmt"], cwd=os.path.dirname(output_path))
 
-    if os.path.isfile("terraform.tf"):
+    if os.path.isfile("terraform.tfstate"):
         subprocess.run([TERRAFORM_PATH, "plan"], cwd=os.path.dirname(args.directory))
         # Prompt the user to continue or abort
         if args.yes:

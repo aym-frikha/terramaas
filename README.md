@@ -35,9 +35,9 @@ Terramaas provides a CLI with various commands:
 
 `destroy` : Destroy MAAS network configurations.
 
-### Creating Network Configurations
+### Creating Configurations
 
-To create a network configuration Terraform file from a CSV, use the `create` command. You'll need to specify the CSV file containing the network configuration and the MAAS API configuration file (or provide API key and URL). For example:
+To create the terraform configuration from the CSVs, use the `create` command. You'll need to specify all the csv files containing the network and disks configurations and the MAAS API configuration file (or provide API key and URL). For example:
 
 ```bash
 terramaas create --node-config node_config.csv --partition-config partition_config.csv --network-config network_config.csv --api-config key.yaml
@@ -56,9 +56,28 @@ terramaas create --node-config node_config.csv --partition-config partition_conf
 
 #### CSV Example:
 
+# Network
 | | CIDR | Gateway | MTU | Dynamic Range | Reserved Range | VLAN | Fabric |
-| --- | --- | --- | --- | --- | --- | --- | --- |  
+| --- | --- | --- | --- | --- | --- | --- | --- |
 | Openstack Public API | 10.20.0.0/24 | 10.20.0.1 | 1500 | 10.20.0.10-10.20.0.100 | 10.20.0.101-10.20.0.200 | 412 | fab-2 |
+# NICs
+| Resource Name | vlan id | tags | mode | Ip address | Default Gateway | Subnet Name        |
+|---------------|---------|------|------|------------|-----------------|--------------------|
+| enx8          | 0       |      | DHCP |            | false           | OpenstackPublicAPI |
+| enp0s25       | 1       |      | DHCP |            | false           | OpenstackPublicAPI |
+# Partition
+| Resource Name | size gigabytes | fs type | label | bootable |
+|---------------|----------------|---------|-------|----------|
+| sda1          | 1              | ext4    | boot  | true     |
+| sda2          | 118            | ext4    | root  | false    |
+# Node Config
+| Resource Name | Power type | Power pass | Power address | pxe mac address | id path | nic name     | mac address                          | partition schema |
+|---------------|------------|------------|---------------|-----------------|---------|--------------|--------------------------------------|------------------|
+| node01        | amt        | Password1+ | 172.27.84.11  | 172.27.84.11    |         | enx8,enp0s25 | b8:ae:ed:7b:f3:99,b8:ae:ed:7b:f3:89  | sda1, sda2       |
+# User Config
+| Resource Name | name      | Password    | Email                 | is admin |
+|---------------|-----------|-------------|-----------------------|----------|
+| cloudbase     | cloudbase | Passw0rd123 | admin@cloudbase.local | true     |
 
 #### API Configuration File:
 
