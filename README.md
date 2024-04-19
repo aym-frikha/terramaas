@@ -22,7 +22,7 @@ Terramaas is a Python-based tool designed to simplify and automate the deploymen
 Terramaas can be installed using snap:
 
 ```bash
-sudo snap install terramaas --classic
+sudo snap install terramaas --channel edge --devmode
 ```
  
 ## Usage
